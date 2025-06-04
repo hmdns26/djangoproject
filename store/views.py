@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from store.models import Category, Product
-from store.serializers import CategorySerializer, ProductSerializer
+from .models import Category, Product
+from .serializers import CategorySerializer, ProductSerializer
 
 @api_view()
 def products_list(request):
@@ -15,7 +15,9 @@ def products_list(request):
 @api_view()
 def products_details(request,pk):
     product=get_object_or_404(Product.objects.select_related('category'),pk=pk)  
-    serializer=ProductSerializer(product)
+    serializer=ProductSerializer(product,context={
+        'request':request
+    })
     return Response(serializer.data)
 
 @api_view()
