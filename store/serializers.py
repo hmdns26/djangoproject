@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Category
 
 class CategorySerializer(serializers.Serializer):
     title=serializers.CharField(max_length=255)
@@ -9,4 +10,4 @@ class ProductSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     unit_price=serializers.DecimalField(max_digits=6,decimal_places=2)
     inventory=serializers.IntegerField()
-    category=CategorySerializer()
+    category=serializers.HyperlinkedRelatedField(queryset=Category.objects.all(),view_name='categorydetails')
