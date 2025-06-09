@@ -12,7 +12,6 @@ class Discount(models.Model):
     discount = models.FloatField()
     description = models.CharField(max_length=255)
 
-
 class Product(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products')
@@ -24,7 +23,6 @@ class Product(models.Model):
     datetime_modified = models.DateTimeField(auto_now=True)
     discounts = models.ManyToManyField(Discount, blank=True)
 
-
 class Customer(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -32,13 +30,11 @@ class Customer(models.Model):
     phone_number = models.CharField(max_length=255)
     birth_date = models.DateField(null=True, blank=True)
 
-
 class Address(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
     province = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     street = models.CharField(max_length=255)
-
 
 class Order(models.Model):
     ORDER_STATUS_PAID = 'p'
@@ -54,7 +50,6 @@ class Order(models.Model):
     datetime_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1, choices=ORDER_STATUS, default=ORDER_STATUS_UNPAID)
 
-
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='order_items')
@@ -63,7 +58,6 @@ class OrderItem(models.Model):
 
     class Meta:
         unique_together = [['order', 'product']]
-
 
 class Comment(models.Model):
     COMMENT_STATUS_WAITING = 'w'
@@ -81,10 +75,8 @@ class Comment(models.Model):
     datetime_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=2, choices=COMMENT_STATUS, default=COMMENT_STATUS_WAITING)
 
-
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')

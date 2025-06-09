@@ -6,8 +6,8 @@ class CategorySerializer(serializers.Serializer):
     description=serializers.CharField(max_length=500)
 
 class ProductSerializer(serializers.ModelSerializer):
-    
+
     category=serializers.HyperlinkedRelatedField(queryset=Category.objects.all(),view_name='categorydetails')
     class Meta:
         model=Product
-        fields=['id','name','unit_price','inventory','category']
+        fields=['id','name','unit_price','category','unit_price','inventory','slug','description']
