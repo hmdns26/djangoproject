@@ -4,66 +4,70 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
+from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView
 
-@api_view(['GET','POST'])
-def products_list(request):
-    if request.method == 'GET':
+class ProductList(APIView):
+    def get(self,request):
         product_queryset=Product.objects.select_related('category').all()
         serializer=ProductSerializer(product_queryset,many=True,context={
             'request':request
         })
         return Response(serializer.data)
-    elif request.method =='POST':
+    def post(self,request):
         serializer=ProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)
     
-@api_view(['GET','PUT','DELETE'])
-def products_details(request,pk):
-    product=get_object_or_404(Product.objects.select_related('category'),pk=pk)  
-    if request.method == 'GET':
-        serializer=ProductSerializer(product,context={
-            'request':request
-        })
+class ProductDetails(APIView):
+    def get(self , request,pk):
+        product=get_object_or_404(Product.objects.select_related('category'),pk=pk)  
+        serializer=ProductSerializer(product,context={'request':request})
         return Response(serializer.data)
-    elif request.method == 'PUT':
+    def put(self ,request,pk):
+        product=get_object_or_404(Product.objects.select_related('category'),pk=pk)  
         serializer = ProductSerializer(product,data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
-    elif request.method == 'DELETE':
+        return Response(serializer.data)  
+    def delete(self , request,pk):
+        product=get_object_or_404(Product.objects.select_related('category'),pk=pk)  
         if product.order_items.count()>0:
             return Response({'ereor':'there is some order'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-@api_view(['GET','POST'])
-def category_list(request):
-    if request.method == 'GET':
+
+class CategoryList(APIView):
+    def get(self,request):
         category_queryset=Category.objects.prefetch_related('products').all()
         serializer=CategorySerializer(category_queryset,many=True)
         return Response(serializer.data)
-    elif request.method =='POST':
+    def put(self,request):
         serializer=CategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)   
-    
-@api_view(['GET','PUT','DELETE'])
-def category_details(request,pk):
-    category=get_object_or_404(Category,pk=pk)
-    if request.method == 'GET':
+
+class CategoryDetalil(APIView):
+    def get(self,request,pk):
+        category=get_object_or_404(Category,pk=pk)
         serializer=CategorySerializer(category)
         return Response(serializer.data)
-    elif request.method == 'PUT':
+    def put(self , request,pk):
+        category=get_object_or_404(Category,pk=pk)
         serializer = CategorySerializer(category,data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-    elif request.method == 'DELETE':
+    def delete(self , request,pk):
+        category=get_object_or_404(Category,pk=pk)
         if category.products.count()>0:
             return Response({'error':'there is some products relating this category'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
     
