@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product
+from .models import Category, Product ,Comment
 
 class CategorySerializer(serializers.ModelSerializer):
     num_of_products=serializers.SerializerMethodField()
@@ -15,3 +15,11 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model=Product
         fields=['id','name','unit_price','category','unit_price','inventory','slug','description']
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Comment
+        fields=['id','name','body']
+    def create(self, validated_data):
+        product_id=self.context['product_pk']
+        return Comment.objects.create(product_id=product_id,**validated_data)

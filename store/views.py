@@ -1,14 +1,18 @@
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer
-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from .models import Category, Product ,Comment
+from .serializers import CategorySerializer, CommentSerializer, ProductSerializer
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 
 class ProductViewSet(ModelViewSet):
     serializer_class=ProductSerializer
-    queryset=Product.objects.select_related('category').all()   
+    filter_backends=[DjangoFilterBackend]
+    filterset_fields=['category_id']
+    queryset=Product.objects.all()
+    
     def get_serializer_context(self):
         return {
             'request':self.request
@@ -31,4 +35,10 @@ class CategoryViewSet(ModelViewSet):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-                                            
+class CommentViewSet(ModelViewSet):
+    serializer_class=CommentSerializer 
+    def get_queryset(self):
+        product_pk=self.kwargs['product_pk']
+        return Comment.objects.filter(product_id=product_pk).all()                                       
+    def get_serializer_context(self):
+        return {"product_pk":self.kwargs['product_pk']}

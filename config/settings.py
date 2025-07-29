@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'debug_toolbar',
     'store',
@@ -135,4 +136,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK={
     'COERCE_DECIMAL_TO_STRING':False,
+    'PAGE_SIZE':10,
+    'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination'
 }
