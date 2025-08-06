@@ -5,7 +5,6 @@ from . import models
 class ProductAdmin(admin.ModelAdmin):
     list_display=["name",'inventory']
 
-
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display=['id','created_at']
