@@ -5,7 +5,7 @@ from .models import Cart, Category, Product ,Comment
 from .serializers import CartSerializer, CategorySerializer, CommentSerializer, ProductSerializer
 from rest_framework.viewsets import ModelViewSet ,GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin
+from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin ,DestroyModelMixin
 
 class ProductViewSet(ModelViewSet):
     serializer_class=ProductSerializer
@@ -45,6 +45,7 @@ class CommentViewSet(ModelViewSet):
     
 class CartViewSet(CreateModelMixin,
                    RetrieveModelMixin,
+                   DestroyModelMixin,
                    GenericViewSet):
     serializer_class=CartSerializer
     queryset=Cart.objects.prefetch_related('items__product').all()
