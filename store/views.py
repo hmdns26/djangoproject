@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Cart, Category, Product ,Comment
-from .serializers import CartSerializer, CategorySerializer, CommentSerializer, ProductSerializer
+from .models import Cart, CartItem, Category, Product ,Comment
+from .serializers import CartItemSerializer, CartSerializer, CategorySerializer, CommentSerializer, ProductSerializer
 from rest_framework.viewsets import ModelViewSet ,GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin ,DestroyModelMixin
@@ -42,7 +42,13 @@ class CommentViewSet(ModelViewSet):
         return Comment.objects.filter(product_id=product_pk).all()                                       
     def get_serializer_context(self):
         return {"product_pk":self.kwargs['product_pk']}
-    
+
+class CartItemViewSet(ModelViewSet):
+    serializer_class=CartItemSerializer
+    def get_queryset(self):
+        cart_pk=self.kwargs['cart_pk']
+        return CartItem.objects.select_related('product').filter(cart_id=cart_pk).all()
+
 class CartViewSet(CreateModelMixin,
                    RetrieveModelMixin,
                    DestroyModelMixin,
