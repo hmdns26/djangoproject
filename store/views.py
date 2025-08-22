@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Cart, CartItem, Category, Product ,Comment
-from .serializers import CartItemSerializer, CartSerializer, CategorySerializer, CommentSerializer, ProductSerializer
+from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CategorySerializer, ChangeCartitemSerializer, CommentSerializer, ProductSerializer
 from rest_framework.viewsets import ModelViewSet ,GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin ,DestroyModelMixin
@@ -44,14 +44,23 @@ class CommentViewSet(ModelViewSet):
         return {"product_pk":self.kwargs['product_pk']}
 
 class CartItemViewSet(ModelViewSet):
-    serializer_class=CartItemSerializer
+    http_method_names=['get','post','patch','delete']
     def get_queryset(self):
         cart_pk=self.kwargs['cart_pk']
         return CartItem.objects.select_related('product').filter(cart_id=cart_pk).all()
-
+    def get_serializer_class(self):
+        if self.request.method=='POST':
+            return AddCartItemSerializer
+        elif self.request.method == 'PATCH':
+            return ChangeCartitemSerializer
+        return CartItemSerializer
+    def get_serializer_context(self):
+        return {'cart_pk':self.kwargs['cart_pk']}
+    
 class CartViewSet(CreateModelMixin,
                    RetrieveModelMixin,
                    DestroyModelMixin,
                    GenericViewSet):
     serializer_class=CartSerializer
     queryset=Cart.objects.prefetch_related('items__product').all()
+    lookup_value_regex='[0-9a-f]{32}'
