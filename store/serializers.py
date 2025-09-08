@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, CartItem, Category, Product ,Comment
+from .models import Cart, CartItem, Category, Customer, Product ,Comment
 
 class CategorySerializer(serializers.ModelSerializer):
     num_of_products=serializers.SerializerMethodField()
@@ -71,3 +71,9 @@ class ChangeCartitemSerializer(serializers.ModelSerializer):
     class Meta:
         model=CartItem
         fields=['quantity']
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Customer
+        fields=['id','user','birth_date']
+        read_only_fields=['user']

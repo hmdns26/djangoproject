@@ -1,12 +1,14 @@
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from .models import Cart, CartItem, Category, Product ,Comment
-from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CategorySerializer, ChangeCartitemSerializer, CommentSerializer, ProductSerializer
+from .models import Cart, CartItem, Category, Customer, Product ,Comment
+from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CategorySerializer, ChangeCartitemSerializer, CommentSerializer, CustomerSerializer, ProductSerializer
 from rest_framework.viewsets import ModelViewSet ,GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin ,DestroyModelMixin
-
+from rest_framework.permissions import IsAdminUser ,IsAuthenticated
+from .permissions import IsAdminOrReadOnly
 class ProductViewSet(ModelViewSet):
     serializer_class=ProductSerializer
     filter_backends=[DjangoFilterBackend]
@@ -28,6 +30,7 @@ class ProductViewSet(ModelViewSet):
 class CategoryViewSet(ModelViewSet):
     serializer_class=CategorySerializer
     queryset=Category.objects.prefetch_related('products')
+    permission_classes=[IsAdminOrReadOnly]
     def delete(self , request,pk):
         category=get_object_or_404(Category,pk=pk)
         if category.products.count()>0:
@@ -64,3 +67,20 @@ class CartViewSet(CreateModelMixin,
     serializer_class=CartSerializer
     queryset=Cart.objects.prefetch_related('items__product').all()
     lookup_value_regex='[0-9a-f]{32}'
+
+class CustomerViewSet(ModelViewSet):
+    serializer_class=CustomerSerializer
+    queryset=Customer.objects.all()
+    permission_classes=[IsAdminUser]
+    @action(detail=False,methods=['GET','PUT'],permission_classes=[IsAuthenticated])
+    def me(self, request):
+        user_id=request.user.id
+        customer=Customer.objects.get(user_id=user_id)
+        if request.mathod =='GET':
+            serializer=CustomerSerializer(customer)
+            return Response(serializer.data)
+        elif request.method == 'POST':
+            serializer=CustomerSerializer(customer,data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
