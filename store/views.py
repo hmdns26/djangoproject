@@ -7,12 +7,13 @@ from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializ
 from rest_framework.viewsets import ModelViewSet ,GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin , RetrieveModelMixin ,DestroyModelMixin
-from rest_framework.permissions import IsAdminUser ,IsAuthenticated
-from .permissions import IsAdminOrReadOnly
+from rest_framework.permissions import IsAdminUser ,IsAuthenticated,AllowAny,DjangoModelPermissions
+from .permissions import CustomDjangoModelPermission, IsAdminOrReadOnly, SendPrivateToCustomer
 class ProductViewSet(ModelViewSet):
     serializer_class=ProductSerializer
     filter_backends=[DjangoFilterBackend]
     filterset_fields=['category_id']
+    permission_classes=[IsAdminUser]
     queryset=Product.objects.all()
     
     def get_serializer_context(self):
@@ -84,3 +85,6 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+    @action(detail=True ,permission_classes=[SendPrivateToCustomer])
+    def send_private_email(self,request,pk):
+        return Response(f'sending email {pk=}')

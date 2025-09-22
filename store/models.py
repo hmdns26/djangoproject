@@ -28,7 +28,8 @@ class Customer(models.Model):
     user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
     phone_number = models.CharField(max_length=255)
     birth_date = models.DateField(null=True, blank=True)
-
+    class Meta:
+        permissions=[('send_private_email','can send private email to users')]
 class Address(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
     province = models.CharField(max_length=255)
